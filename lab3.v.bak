@@ -1,0 +1,43 @@
+module lab3(
+	input en,
+	input up,
+	input clk,
+	input rst,
+	output reg [15:0] dout
+);
+
+	reg [3:0] consecutive_cnt;
+	
+	always @(posedge clk or negedge rst) begin
+		if (!rst) begin
+			dout <= 16'd0;
+			consecutive_cnt <= 4'd0;
+		end
+		else if (en) begin
+			if (up) begin
+				if (dout < 16'hffff) begin
+					if (consecutive_cnt >= 4'd15)
+						dout <= (dout >= 16'hfffe) ? 16'hffff : dout + 16'd2;
+					else
+						dout <= dout + 16'd1;
+						
+					consecutive_cnt <= (consecutive_cnt < 4'd15) ? consecutive_cnt + 4'd1; : consecutive_cnt;
+				end
+			end
+			else begin
+				if (dout > 16'd0) begin
+					if (consecutive_cnt >= 4'd15)
+						dout <= (dout <= 16'd1) ? 16'd0 : dout - 16'd2;
+					else
+						dout <= dout - 16'd1;
+						
+					consecutive_cnt <= (consecutive_cnt < 4'd15) ? consecutive_cnt + 4'd1; : consecutive_cnt;
+				end
+			end
+		end
+		else begin
+			consecutive_cnt <= 4'd0;
+		end
+	end
+	
+endmodule
